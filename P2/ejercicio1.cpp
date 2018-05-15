@@ -3,16 +3,20 @@
 #include <netdb.h>
 #include <iostream>
 #include <stdlib.h>
-struct addrinfo hints, *res;
+#include <string.h>
 
 
 
 
-int main(int argc, const char* argv[])
+
+int main(int argc, char* argv[])
 {
+	struct addrinfo hints,*res;
+	memset((void*) &hints,'\0', sizeof(struct addrinfo));
+	
 	hints.ai_family = AF_UNSPEC;
 	
-	int resultado = getaddrinfo(argv[1],NULL, &hints,&res);
+	int resultado = getaddrinfo(argv[1],argv[2], &hints,&res);
 	
 	if (resultado){
 		std::cout << "getaddrinfo: "  <<  gai_strerror(resultado) << std::endl;
@@ -22,10 +26,11 @@ int main(int argc, const char* argv[])
 	
   struct addrinfo *p;
   char host[256];
+  char serv[256];
 
   for(p = res; p != NULL; p = p->ai_next) {
 
-    getnameinfo(p->ai_addr, p->ai_addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+    getnameinfo(p->ai_addr, p->ai_addrlen, host, sizeof(host), serv, NI_MAXSERV, NI_NUMERICHOST);
     std::cout << host << '\t' << p->ai_family << '\t' << p->ai_socktype <<  std::endl;
   }
 
