@@ -6,11 +6,14 @@
 #include <time.h>
 #include <string.h>
 
+
+//ejecutar con ./ejericicio2 0.0.0.0 3000 por ejemplo
+
 int main (int agrc, const char * argv[]){
 
 	struct addrinfo hints;
 	struct addrinfo *res;
-
+	memset((void*) &hints, '\0', sizeof(struct addrinfo));
 
 	hints.ai_flags    = AI_PASSIVE; //Devolver 0.0.0.0
 	hints.ai_family   = AF_INET; // IPv4
@@ -41,23 +44,31 @@ int main (int agrc, const char * argv[]){
 			
 		while(!salir){
 			
-			size_t s = recvfrom(sd,buf,255,0,&src_addr,&addrlen);
+			size_t s = recvfrom(sd,buf,256,0,&src_addr,&addrlen);
+			buf [s]='\0';
 			getnameinfo(&src_addr,addrlen,host,NI_MAXHOST, serv, NI_MAXSERV,NI_NUMERICHOST | NI_NUMERICSERV);
 			std::cout << "Conected to " << host << '\n';
-			if(buf[0] == 'q')
+			
+			time_t rawtime;
+			struct tm* timeinfo;
+			time (&rawtime);
+			timeinfo = localtime (&rawtime);
+			
+			
+			if(buf[0] == 'q'){
+				std::cout << " Saliendo...\n";
 				salir=true;
+				}
 			else if(buf[0] == 't'){//la hora
 				std::cout << "2 bytes de " << host;
-				time_t t;
-				char * c;
-				c = ctime(&t);
-				sendto(sd,c,s,strlen(c) +1,&src_addr,addrlen);
+				size_t tam = strftime(buf,255,"%r",timeinfo);
+				sendto(sd,buf,tam,0,&src_addr,addrlen);
 			}
 			else if(buf[0] == 'd'){//la fecha
 				std::cout << "2 bytes de " << host;
 				
-				
-				sendto(sd,buf,s,0,&src_addr,addrlen);
+				size_t tam = strftime(buf,255,"%F",timeinfo);
+				sendto(sd,buf,tam,0,&src_addr,addrlen);
 				
 			}
 			else{
