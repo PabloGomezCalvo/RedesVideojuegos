@@ -73,7 +73,7 @@ int main (int agrc, const char * argv[]){
 				}
 				send(client,buf,i,0);
 			}	
-		std::cout << "Conexion termianda.\n";
+		std::cout << "Conexion terminada.\n";
 		}
 	
 	
