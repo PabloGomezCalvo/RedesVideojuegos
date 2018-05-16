@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <unistd.h>
 
 
 
-//ejecutar con ./ejericicio2 0.0.0.0 3000 por ejemplo
+//ejecutar con ./ejericicio4 0.0.0.0 3000 por ejemplo
 
 int main (int agrc, const char * argv[]){
 
@@ -16,9 +17,9 @@ int main (int agrc, const char * argv[]){
 	struct addrinfo *res;
 	memset((void*) &hints, '\0', sizeof(struct addrinfo));
 
-	hints.ai_flags    = AI_PASSIVE; //Devolver 0.0.0.0
+	
 	hints.ai_family   = AF_INET; // IPv4
-	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_socktype = SOCK_STREAM;
 	//---------------------------------------------------------------------
 	//	1.Inicializar socket
 	//---------------------------------------------------------------------
@@ -36,7 +37,7 @@ int main (int agrc, const char * argv[]){
 	//el segundo parametro es la cola de conexiones que aceptas.
 	listen (sd,3);
 	
-	char buf[256];
+	char buf[80];
 	int client;
 	struct sockaddr src_addr;
 	socklen_t addrlen = sizeof(src_addr);
@@ -48,18 +49,22 @@ int main (int agrc, const char * argv[]){
 		
 		client = accept (sd, (struct sockaddr *) &src_addr,&addrlen);
 		
-		getnameinfo(&src_addr,addrlen,host,NI_MAXHOST, serv, NI_MAXSERV,NI_NUMERICHOST | NI_NUMERICSERV);
+		getnameinfo((struct sockaddr *)&src_addr,addrlen,host,NI_MAXHOST, serv, NI_MAXSERV,NI_NUMERICHOST | NI_NUMERICSERV);
 		std::cout << "Conexion desde host: " << host <<	"\t"<<serv;	
 		
 		while(true){
 			int i=0;
 			int x=0;
 			
-			while(x>=0 && i< 255 && buf[i++] != '\n');{
-				
+			//se necesita do while para que intente recibir una vez antes de evaluar la condicion del while.
+			
+			do{
 				x=recv(client, &(buf[i]),1,0);
 				
 				}
+			while(x>=0 && i< 79 && buf[i++] != '\n');
+				
+				
 				
 			if(x==0){
 				close(client);
