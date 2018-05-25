@@ -122,19 +122,19 @@ int main(int argc, char**argv){
 //	2.Inicializar Pool of Threads
 //---------------------------------------------------------------------
 
-pthread_t tid[NUM_THREADS];
+
 
 int i=0;
 while(i<= NUM_THREADS){
 
-	
+	pthread_t tid;
 	pthread_attr_t attr;
 
 	ServerThread* st = new ServerThread(sd);
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
 
-	pthread_create(&tid[i],&attr,start_routine,static_cast<void *> (st));
+	pthread_create(&tid,&attr,start_routine,static_cast<void *> (st));
 	i++;
 }
 
