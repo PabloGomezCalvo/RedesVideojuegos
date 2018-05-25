@@ -7,11 +7,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <features.h>
-
-//a la hora de compilar poner -l pthread
+#include <pthread.h>
+//a la hora de compilar poner -lpthread
 
 //el ejecutable se llama con localhost 8080  (estructura ip puerto)
-#define NUM_THREADS 5;
+#define NUM_THREADS 5
 
 class ServerThread
 {
@@ -21,14 +21,15 @@ public:
 //recibo mensaje y trato el mensaje
 void do_message(){
 
-while (true){
-
-	char buf[256];
+char buf[256];
 	struct sockaddr src_addr;
 	socklen_t addrlen = sizeof(src_addr);
 
 	char host[NI_MAXHOST];
-	char serv[NI_MAXSERV];
+	char serv[NI_MAXSERV];	
+while (true){
+
+	
 
 	size_t s = recvfrom(sd,buf,255,0,&src_addr,&addrlen);
 	buf[s] = '\0';
@@ -49,25 +50,25 @@ while (true){
 				
 				}
 			else if(buf[0] == 't'){//la hora
-				std::cout << "2 bytes de " << host;
+				//std::cout << "2 bytes de " << host;
 				size_t tam = strftime(buf,255,"%r",timeinfo);
 				sendto(sd,buf,tam,0,&src_addr,addrlen);
 			}
 			else if(buf[0] == 'd'){//la fecha
-				std::cout << "2 bytes de " << host;
+				//std::cout << "2 bytes de " << host;
 				
 				size_t tam = strftime(buf,255,"%F",timeinfo);
 				sendto(sd,buf,tam,0,&src_addr,addrlen);
 				
 			}
 			else{
-				std::cout << "2 bytes de " << host << '\n';
+				//std::cout << "2 bytes de " << host << '\n';
 				std:: cout << "Comando no soportado " << buf[0] <<'\n';
 			
 			
 			}
 	
-	sleep(10);
+	sleep(3);
 
 }
 }
@@ -99,9 +100,9 @@ int main(int argc, char**argv){
 	struct addrinfo *res;
 	memset((void*) &hints, '\0', sizeof(struct addrinfo));
 
-	//hints.ai_flags    = AI_PASSIVE; //Devolver 0.0.0.0
+	hints.ai_flags    = AI_PASSIVE; //Devolver 0.0.0.0
 	hints.ai_family   = AF_INET; // IPv4
-	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_socktype = SOCK_STREAM;
 	//---------------------------------------------------------------------
 	//	1.Inicializar socket
 	//---------------------------------------------------------------------
@@ -125,7 +126,7 @@ int main(int argc, char**argv){
 
 
 int i=0;
-while(i<= NUM_THREADS){
+while(i< NUM_THREADS){
 
 	pthread_t tid;
 	pthread_attr_t attr;
